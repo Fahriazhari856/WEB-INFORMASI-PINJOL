@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' data: https:; style-src 'self'; script-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+    <title>Admin CekPinjol.id</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <a class="skip-link" href="#admin-content">Lewati ke konten</a>
+
+    <main id="login-view" class="auth-shell" aria-labelledby="login-title">
+        <section class="auth-card">
+            <div class="brand brand--login" aria-label="CekPinjol.id">
+                <span class="brand__mark" aria-hidden="true">CP</span>
+                <span>CekPinjol<span class="brand__accent">.id</span></span>
+            </div>
+            <div class="auth-card__heading">
+                <p class="eyebrow">Area terbatas</p>
+                <h1 id="login-title">Masuk ke panel admin</h1>
+                <p>Gunakan akun admin Anda. Kredensial tidak pernah disimpan di halaman ini.</p>
+            </div>
+
+            <div id="login-error" class="alert alert--danger" role="alert" hidden></div>
+
+            <form id="login-form" class="form-stack" novalidate>
+                <label class="field">
+                    <span>Email</span>
+                    <input id="login-email" name="email" type="email" autocomplete="username" inputmode="email" maxlength="254" required autofocus>
+                    <small>Masukkan email akun dengan peran admin.</small>
+                </label>
+                <label class="field">
+                    <span>Kata sandi</span>
+                    <span class="password-control">
+                        <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="1" maxlength="128" required>
+                        <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Tampilkan kata sandi">Lihat</button>
+                    </span>
+                </label>
+                <button id="login-submit" class="button button--primary button--wide" type="submit">
+                    <span class="button__label">Masuk</span>
+                    <span class="spinner" aria-hidden="true" hidden></span>
+                </button>
+            </form>
+            <p class="auth-note">Akses dan perubahan data dicatat untuk keamanan.</p>
+        </section>
+    </main>
+
+    <div id="admin-app" class="app-shell" hidden>
+        <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
+        <aside id="sidebar" class="sidebar" aria-label="Navigasi admin">
+            <div class="sidebar__brand brand">
+                <span class="brand__mark" aria-hidden="true">CP</span>
+                <span>CekPinjol<span class="brand__accent">.id</span></span>
+            </div>
+            <nav class="sidebar__nav">
+                <button class="nav-item is-active" type="button" data-section="dashboard">
+                    <span class="nav-item__icon" aria-hidden="true">⌂</span><span>Dashboard</span>
+                </button>
+                <button class="nav-item" type="button" data-section="companies">
+                    <span class="nav-item__icon" aria-hidden="true">▦</span><span>Data Pinjol</span>
+                </button>
+                <button class="nav-item" type="button" data-section="users">
+                    <span class="nav-item__icon" aria-hidden="true">♙</span><span>Akun</span>
+                </button>
+                <button class="nav-item" type="button" data-section="reviews">
+                    <span class="nav-item__icon" aria-hidden="true">★</span><span>Ulasan</span>
+                </button>
+                <button class="nav-item" type="button" data-section="reports">
+                    <span class="nav-item__icon" aria-hidden="true">!</span><span>Laporan</span>
+                </button>
+                <button class="nav-item" type="button" data-section="settings">
+                    <span class="nav-item__icon" aria-hidden="true">⚙</span><span>Pengaturan</span>
+                </button>
+                <button class="nav-item" type="button" data-section="audit">
+                    <span class="nav-item__icon" aria-hidden="true">≡</span><span>Audit Log</span>
+                </button>
+            </nav>
+            <div class="sidebar__footer">
+                <div class="admin-identity">
+                    <span id="admin-avatar" class="avatar" aria-hidden="true">A</span>
+                    <span class="admin-identity__copy">
+                        <strong id="admin-name">Administrator</strong>
+                        <small id="admin-email"></small>
+                    </span>
+                </div>
+                <button id="change-password-button" class="button button--ghost button--wide" type="button">Ganti kata sandi</button>
+                <button id="logout-button" class="button button--ghost button--wide" type="button">Keluar</button>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <button id="menu-button" class="icon-button topbar__menu" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+                <div class="topbar__titles">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="page-subtitle">Ringkasan aktivitas sistem</p>
+                </div>
+                <div class="topbar__right">
+                    <button id="refresh-button" class="button button--secondary" type="button">Muat ulang</button>
+                    <span id="session-badge" class="session-badge"><span aria-hidden="true"></span> Admin aktif</span>
+                </div>
+            </header>
+
+            <main id="admin-content" class="content" tabindex="-1">
+                <div class="initial-loader" role="status">
+                    <span class="spinner"></span>
+                    <span>Memuat dashboard…</span>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <dialog id="editor-dialog" class="dialog">
+        <form id="editor-form" method="dialog" novalidate>
+            <header class="dialog__header">
+                <div>
+                    <p id="editor-eyebrow" class="eyebrow">Form admin</p>
+                    <h2 id="editor-title">Edit data</h2>
+                </div>
+                <button id="editor-close" class="icon-button" type="button" aria-label="Tutup dialog">×</button>
+            </header>
+            <div id="editor-error" class="alert alert--danger dialog__alert" role="alert" hidden></div>
+            <div id="editor-fields" class="dialog__body"></div>
+            <footer class="dialog__footer">
+                <button id="editor-cancel" class="button button--secondary" type="button">Batal</button>
+                <button id="editor-submit" class="button button--primary" type="submit">
+                    <span class="button__label">Simpan</span>
+                    <span class="spinner" aria-hidden="true" hidden></span>
+                </button>
+            </footer>
+        </form>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="dialog dialog--small">
+        <form id="confirm-form" method="dialog">
+            <header class="dialog__header">
+                <div>
+                    <p class="eyebrow">Konfirmasi</p>
+                    <h2 id="confirm-title">Konfirmasi tindakan</h2>
+                </div>
+                <button id="confirm-close" class="icon-button" type="button" aria-label="Tutup dialog">×</button>
+            </header>
+            <div class="dialog__body">
+                <p id="confirm-message" class="confirm-message"></p>
+            </div>
+            <footer class="dialog__footer">
+                <button id="confirm-cancel" class="button button--secondary" type="button">Batal</button>
+                <button id="confirm-submit" class="button button--danger" type="submit">Lanjutkan</button>
+            </footer>
+        </form>
+    </dialog>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <noscript>Panel admin membutuhkan JavaScript agar dapat digunakan.</noscript>
+    <script src="admin.js" defer></script>
+</body>
+</html>
