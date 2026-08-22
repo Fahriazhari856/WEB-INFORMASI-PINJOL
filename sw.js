@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cekpinjol-static-v2';
+const CACHE_NAME = 'cekpinjol-static-v3';
 const STATIC_ASSETS = ['./', './index.html', './script.js', './style.css'];
 
 self.addEventListener('install', event => {
@@ -30,16 +30,36 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Network-first mencegah aset lama terus digunakan setelah aplikasi diperbarui.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put('./index.html', response.clone()));
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Aset lokal tampil dari cache terlebih dahulu, lalu diperbarui di belakang layar.
   event.respondWith(
-    fetch(request)
-      .then(response => {
-        if (response.ok && response.type === 'basic') {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+    caches.match(request).then(cached => {
+      const networkUpdate = fetch(request)
+        .then(response => {
+          if (response.ok && response.type === 'basic') {
+            caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+          }
+          return response;
+        })
+        .catch(() => null);
+
+      if (cached) {
+        event.waitUntil(networkUpdate);
+        return cached;
+      }
+
+      return networkUpdate.then(response => response || caches.match('./index.html'));
+    })
   );
 });

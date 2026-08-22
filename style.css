@@ -26,6 +26,11 @@
             cursor: default;
         }
 
+        .company-card {
+            content-visibility: auto;
+            contain-intrinsic-size: 24rem;
+        }
+
         /* Animasi Efek "Pop" pada Tombol Like */
         @keyframes pop {
             0% { transform: scale(1); }
@@ -110,6 +115,19 @@
         :focus-visible {
             outline: 3px solid rgba(37, 99, 235, 0.35);
             outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .animate-marquee {
+                transform: none;
+            }
         }
 
         /* --- RESPONSIVE SCALING FOR 720-760px --- */
