@@ -1,0 +1,13 @@
+node_modules/
+data/*.sqlite
+data/*.sqlite-*
+data/*.db
+data/*.db-*
+.env
+.env.*
+!.env.example
+secrets/
+coverage/
+netlify-public/
+npm-debug.log*
+.DS_Store
