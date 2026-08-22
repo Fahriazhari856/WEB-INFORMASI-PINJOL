@@ -1,6 +1,7 @@
         // Data utama selalu berasal dari API/database. Tidak ada lagi data akun,
         // ulasan, atau like yang dianggap tersimpan hanya karena ada di browser.
         let pinjolData = [];
+        let searchTimer = null;
 
         const defaultSettings = {
             siteName: 'CekPinjol.id',
@@ -218,19 +219,21 @@
         }
 
         function handleSearch(val) {
-            state.searchQuery = val;
-            
             // Sync inputs
             ['desktop-search', 'mobile-search', 'directory-search'].forEach(id => {
                 const input = document.getElementById(id);
                 if (input && input.value !== val) input.value = val;
             });
 
-            if (state.currentPage !== 'Daftar' && val !== "") {
-                setPage('Daftar');
-            } else {
-                renderMain();
-            }
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(() => {
+                state.searchQuery = val;
+                if (state.currentPage !== 'Daftar' && val !== "") {
+                    setPage('Daftar');
+                } else {
+                    renderMain();
+                }
+            }, 160);
         }
 
         function setFilter(status) {
@@ -430,7 +433,7 @@
         // --- RENDER FUNCTIONS ---
         function renderCard(company, extraClasses = '') {
             const isLegal = company.status === 'Legal';
-            const badgeBg = isLegal ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700 animate-pulse';
+            const badgeBg = isLegal ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
             const badgeIcon = isLegal ? 'shield-check' : 'alert-triangle';
             const badgeText = isLegal ? 'Legal · Perlu Verifikasi' : 'Status: Ilegal';
             const trustClass = company.trustLevel > 50 ? 'text-blue-600' : 'text-red-600';
@@ -442,12 +445,12 @@
             const visitUrl = safeLinkUrl(company.sourceUrl);
 
             return `
-                <div onclick="openModal(${company.id})" class="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col h-full text-left ${extraClasses}">
+                <div onclick="openModal(${company.id})" class="company-card bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col h-full text-left ${extraClasses}">
                     <div class="h-2 w-full ${isLegal ? 'bg-green-500' : 'bg-red-500'}"></div>
                     
                     <!-- Thumbnail Aplikasi (Diperkecil di Mobile) -->
                     <div class="relative h-28 md:h-40 w-full overflow-hidden bg-slate-100 border-b border-slate-100 shrink-0">
-                        <img src="${safeImageUrl(company.imageUrl)}" alt="Aplikasi ${escapeHtml(company.name)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Tanpa+Gambar'">
+                        <img src="${safeImageUrl(company.imageUrl)}" alt="Aplikasi ${escapeHtml(company.name)}" width="600" height="400" loading="lazy" decoding="async" fetchpriority="low" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Tanpa+Gambar'">
                     </div>
 
                     <div class="p-4 md:p-6">
@@ -989,7 +992,7 @@
 
                         <!-- Banner Gambar Aplikasi di Modal -->
                         <div class="w-full h-40 md:h-56 bg-slate-100 relative overflow-hidden shrink-0">
-                            <img src="${safeImageUrl(company.imageUrl)}" alt="Banner ${escapeHtml(company.name)}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x300/e2e8f0/64748b?text=Tanpa+Gambar'">
+                            <img src="${safeImageUrl(company.imageUrl)}" alt="Banner ${escapeHtml(company.name)}" width="800" height="300" decoding="async" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x300/e2e8f0/64748b?text=Tanpa+Gambar'">
                         </div>
 
                         <!-- Modal Body -->
@@ -1142,9 +1145,8 @@
             state.loadError = '';
             renderMain();
             try {
-                await refreshAuth();
+                await Promise.all([refreshAuth(), loadCompanies(), loadSettings()]);
                 if (redirectAdminToPanel()) return;
-                await Promise.all([loadCompanies(), loadSettings()]);
             } catch (error) {
                 state.loadError = error.message || 'Server tidak dapat dihubungi.';
             } finally {
@@ -1332,11 +1334,17 @@
             };
         };
 
-        window.onload = async () => {
+        const startApp = async () => {
             initMobileBottomNav();
             await initializeData();
             lucide.createIcons();
         };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp, { once: true });
+        } else {
+            startApp();
+        }
 
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape' && state.modalType) closeModal();
