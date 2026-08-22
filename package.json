@@ -1,0 +1,31 @@
+{
+  "name": "cek-pinjol-id",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Direktori informasi pinjaman online dengan API publik dan panel administrasi.",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build:netlify": "node scripts/build-netlify.js",
+    "create-admin": "node server/create-admin.js",
+    "db:migrate": "node -r dotenv/config server/migrate.js",
+    "db:migrate:data": "node -r dotenv/config server/migrate-data.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.1"
+  }
+}
