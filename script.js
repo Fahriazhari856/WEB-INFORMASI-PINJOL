@@ -111,14 +111,17 @@
                 headers['X-CSRF-Token'] = state.csrfToken;
             }
 
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 15000);
             const response = await fetch(path, {
                 ...options,
                 method,
                 headers,
                 body,
                 credentials: 'same-origin',
-                cache: 'no-store'
-            });
+                cache: 'no-store',
+                signal: controller.signal
+            }).finally(() => window.clearTimeout(timeout));
             const contentType = response.headers.get('content-type') || '';
             const payload = contentType.includes('application/json') ? await response.json() : null;
 
