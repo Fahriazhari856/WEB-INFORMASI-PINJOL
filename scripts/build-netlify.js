@@ -5,11 +5,6 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const publishDirectory = path.join(root, 'netlify-public');
-const backendUrl = String(process.env.BACKEND_URL || '').trim().replace(/\/$/, '');
-
-if (!/^https:\/\//i.test(backendUrl)) {
-  throw new Error('BACKEND_URL wajib diisi dengan URL HTTPS backend Express, contoh: https://api.example.com');
-}
 
 fs.rmSync(publishDirectory, { recursive: true, force: true });
 fs.mkdirSync(path.join(publishDirectory, 'admin'), { recursive: true });
@@ -21,7 +16,7 @@ fs.cpSync(path.join(root, 'admin'), path.join(publishDirectory, 'admin'), { recu
 
 fs.writeFileSync(
   path.join(publishDirectory, '_redirects'),
-  `/api/* ${backendUrl}/api/:splat 200\n`,
+  '/api/* /.netlify/functions/api/api/:splat 200\n',
   'utf8'
 );
 

@@ -77,6 +77,37 @@ Setelah selesai, verifikasi jumlah akun, perusahaan, ulasan, laporan, pengaturan
 
 Jangan menjalankan aplikasi SQLite dan Supabase sebagai dua sumber data aktif setelah cutover. Jika migrasi gagal, jangan hapus sumber SQLite; perbaiki koneksi/schema lalu ulangi sesuai pesan aman dari CLI.
 
+## Deploy langsung ke Netlify
+
+Backend Express dapat dijalankan sebagai Netlify Function gratis melalui `netlify/functions/api.js`. Netlify menyajikan frontend dan meneruskan `/api/*` ke Function; Render/Railway tidak diperlukan.
+
+1. Pastikan migration Supabase sudah selesai dari komputer lokal:
+
+```bash
+npm run db:migrate
+```
+
+2. Push seluruh source ke GitHub. Jangan push `.env`, `node_modules/`, `data/`, `secrets/`, atau `netlify-public/`.
+3. Di Netlify pilih **Add new site > Import an existing project**, lalu pilih repository GitHub.
+4. Gunakan pengaturan berikut (sudah disimpan di `netlify.toml`):
+
+```text
+Build command: npm run build:netlify
+Publish directory: netlify-public
+```
+
+5. Di **Site configuration > Environment variables**, tambahkan:
+
+```dotenv
+NODE_ENV=production
+DB_DRIVER=postgres
+DATABASE_URL=connection-string-dari-Supabase
+PGSSL_MODE=require
+CSRF_SECRET=secret-acak-panjang
+```
+
+Netlify Function membaca environment tersebut saat menangani API. Setelah deploy, buka `/api/health`; response harus menunjukkan `database: "postgres"`. Buat admin dengan `npm run create-admin` dari komputer lokal yang memakai `DATABASE_URL` Supabase, atau jalankan command tersebut melalui shell provider jika tersedia.
+
 ## Konfigurasi
 
 Lihat `.env.example` untuk seluruh environment yang didukung. File `.env` otomatis dimuat saat server dan CLI dijalankan, tetapi environment dari process manager atau platform deployment tetap dapat digunakan.
