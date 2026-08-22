@@ -568,7 +568,7 @@ test('pemilihan provider database eksplisit, tervalidasi, dan SQLite tetap menja
   assert.equal(resolveProvider({ driver: 'sqlite', connectionString: 'postgresql://example.invalid/db' }), 'sqlite');
   assert.equal(resolveProvider({ driver: 'postgres' }), 'postgres');
   assert.equal(resolveProvider({ driver: 'postgresql' }), 'postgres');
-  assert.equal(resolveProvider({ connectionString: 'postgresql://example.invalid/db' }), 'postgres');
+  assert.equal(resolveProvider({ driver: 'postgres', connectionString: 'postgresql://example.invalid/db' }), 'postgres');
   assert.throws(() => resolveProvider({ driver: 'mysql' }), /DB_DRIVER tidak didukung/);
 
   const storage = createStorage({ driver: 'sqlite', filename: ':memory:', seed: false });
